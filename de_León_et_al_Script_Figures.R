@@ -65,27 +65,27 @@ Stream.landscape <- ggplot() +
 #Create vectors for the images, allow easier manipulation of data
 #Wetland landscape
 #Alpha diversity vectors
-as.vector(result.35.mean[302,7:1894])-> alfa_35_solo
-as.vector(result.85.mean[302,7:1894])-> alfa_85_solo
-as.vector(result.200.mean[302,7:1894])-> alfa_200_solo
-as.vector(result.J2250.35.mean[302,7:1894])-> alfa_35_2250J
-as.vector(result.J3500.35.mean[302,7:1894])-> alfa_35_3500J
-as.vector(result.J5000.35.mean[302,7:1894])-> alfa_35_5000J
-as.vector(result.J2250.85.mean[302,7:1894])-> alfa_85_2250J
-as.vector(result.J3500.85.mean[302,7:1894])-> alfa_85_3500J
-as.vector(result.J5000.85.mean[302,7:1894])-> alfa_85_5000J
-as.vector(result.J2250.200.mean[302,7:1894])-> alfa_200_2250J
-as.vector(result.J3500.200.mean[302,7:1894])-> alfa_200_3500J
-as.vector(result.J5000.200.mean[302,7:1894])-> alfa_200_5000J
-as.vector(result.F2250.35.mean[302,7:1894])-> alfa_35_2250F
-as.vector(result.F3500.35.mean[302,7:1894])-> alfa_35_3500F
-as.vector(result.F5000.35.mean[302,7:1894])-> alfa_35_5000F
-as.vector(result.F2250.85.mean[302,7:1894])-> alfa_85_2250F
-as.vector(result.F3500.85.mean[302,7:1894])-> alfa_85_3500F
-as.vector(result.F5000.85.mean[302,7:1894])-> alfa_85_5000F
-as.vector(result.F2250.200.mean[302,7:1894])-> alfa_200_2250F
-as.vector(result.F3500.200.mean[302,7:1894])-> alfa_200_3500F
-as.vector(result.F5000.200.mean[302,7:1894])-> alfa_200_5000F
+as.vector(result.35.mean)-> alfa_35_solo
+as.vector(result.85.mean)-> alfa_85_solo
+as.vector(result.200.mean)-> alfa_200_solo
+as.vector(result.J2250.35.mean)-> alfa_35_2250J
+as.vector(result.J3500.35.mean)-> alfa_35_3500J
+as.vector(result.J5000.35.mean)-> alfa_35_5000J
+as.vector(result.J2250.85.mean)-> alfa_85_2250J
+as.vector(result.J3500.85.mean)-> alfa_85_3500J
+as.vector(result.J5000.85.mean)-> alfa_85_5000J
+as.vector(result.J2250.200.mean)-> alfa_200_2250J
+as.vector(result.J3500.200.mean)-> alfa_200_3500J
+as.vector(result.J5000.200.mean)-> alfa_200_5000J
+as.vector(result.F2250.35.mean)-> alfa_35_2250F
+as.vector(result.F3500.35.mean)-> alfa_35_3500F
+as.vector(result.F5000.35.mean)-> alfa_35_5000F
+as.vector(result.F2250.85.mean)-> alfa_85_2250F
+as.vector(result.F3500.85.mean)-> alfa_85_3500F
+as.vector(result.F5000.85.mean)-> alfa_85_5000F
+as.vector(result.F2250.200.mean)-> alfa_200_2250F
+as.vector(result.F3500.200.mean)-> alfa_200_3500F
+as.vector(result.F5000.200.mean)-> alfa_200_5000F
 #Log-ratio between impacted and unimpacted simulations, adding the result to our matrix
 as.vector(log(alfa_35_2250J/alfa_35_solo)) -> Wetland$Ratio_35_2250J
 as.vector(log(alfa_85_2250J/alfa_85_solo)) -> Wetland$Ratio_85_2250J
@@ -107,27 +107,27 @@ as.vector(log(alfa_85_5000F/alfa_85_solo)) -> Wetland$Ratio_85_5000F
 as.vector(log(alfa_200_5000F/alfa_200_solo)) -> Wetland$Ratio_200_5000F
 
 #The same but for stream landscape
-as.vector(result.river.35.mean[302,7:521])-> alfa_river_35_solo
-as.vector(result.river.85.mean[302,7:521])-> alfa_river_85_solo
-as.vector(result.river.200.mean[302,7:521])-> alfa_river_200_solo
-as.vector(result.river.J2250.35.mean[302,7:521])-> alfa_river_35_2250J
-as.vector(result.river.J3500.35.mean[302,7:521])-> alfa_river_35_3500J
-as.vector(result.river.J5000.35.mean[302,7:521])-> alfa_river_35_5000J
-as.vector(result.river.J2250.85.mean[302,7:521])-> alfa_river_85_2250J
-as.vector(result.river.J3500.85.mean[302,7:521])-> alfa_river_85_3500J
-as.vector(result.river.J5000.85.mean[302,7:521])-> alfa_river_85_5000J
-as.vector(result.river.J2250.200.mean[302,7:521])-> alfa_river_200_2250J
-as.vector(result.river.J3500.200.mean[302,7:521])-> alfa_river_200_3500J
-as.vector(result.river.J5000.200.mean[302,7:521])-> alfa_river_200_5000J
-as.vector(result.river.F2250.35.mean[302,7:521])-> alfa_river_35_2250F
-as.vector(result.river.F3500.35.mean[302,7:521])-> alfa_river_35_3500F
-as.vector(result.river.F5000.35.mean[302,7:521])-> alfa_river_35_5000F
-as.vector(result.river.F2250.85.mean[302,7:521])-> alfa_river_85_2250F
-as.vector(result.river.F3500.85.mean[302,7:521])-> alfa_river_85_3500F
-as.vector(result.river.F5000.85.mean[302,7:521])-> alfa_river_85_5000F
-as.vector(result.river.F2250.200.mean[302,7:521])-> alfa_river_200_2250F
-as.vector(result.river.F3500.200.mean[302,7:521])-> alfa_river_200_3500F
-as.vector(result.river.F5000.200.mean[302,7:521])-> alfa_river_200_5000F
+as.vector(result.river.35.mean)-> alfa_river_35_solo
+as.vector(result.river.85.mean)-> alfa_river_85_solo
+as.vector(result.river.200.mean)-> alfa_river_200_solo
+as.vector(result.river.J2250.35.mean)-> alfa_river_35_2250J
+as.vector(result.river.J3500.35.mean)-> alfa_river_35_3500J
+as.vector(result.river.J5000.35.mean)-> alfa_river_35_5000J
+as.vector(result.river.J2250.85.mean)-> alfa_river_85_2250J
+as.vector(result.river.J3500.85.mean)-> alfa_river_85_3500J
+as.vector(result.river.J5000.85.mean)-> alfa_river_85_5000J
+as.vector(result.river.J2250.200.mean)-> alfa_river_200_2250J
+as.vector(result.river.J3500.200.mean)-> alfa_river_200_3500J
+as.vector(result.river.J5000.200.mean)-> alfa_river_200_5000J
+as.vector(result.river.F2250.35.mean)-> alfa_river_35_2250F
+as.vector(result.river.F3500.35.mean)-> alfa_river_35_3500F
+as.vector(result.river.F5000.35.mean)-> alfa_river_35_5000F
+as.vector(result.river.F2250.85.mean)-> alfa_river_85_2250F
+as.vector(result.river.F3500.85.mean)-> alfa_river_85_3500F
+as.vector(result.river.F5000.85.mean)-> alfa_river_85_5000F
+as.vector(result.river.F2250.200.mean)-> alfa_river_200_2250F
+as.vector(result.river.F3500.200.mean)-> alfa_river_200_3500F
+as.vector(result.river.F5000.200.mean)-> alfa_river_200_5000F
 as.vector(log(alfa_river_35_2250J/alfa_river_35_solo)) -> Stream$Ratio_35_2250J
 as.vector(log(alfa_river_85_2250J/alfa_river_85_solo)) -> Stream$Ratio_85_2250J
 as.vector(log(alfa_river_200_2250J/alfa_river_200_solo)) -> Stream$Ratio_200_2250J
@@ -190,19 +190,19 @@ ggpubr::ggarrange(alfa_river_35, alfa_river_85, alfa_river_200,
 ######################################################################################
 ######################################################################################
 #Extract community abundance in each scenario is possible, we will use it for the next figures
-Wetland$Efecto_J_2250<- (3000- result.J2250.200.mean[303,7:1894])
-Wetland$Efecto_J_3500<- (3000- result.J3500.200.mean[303,7:1894])
-Wetland$Efecto_J_5000<- (3000- result.J5000.200.mean[303,7:1894])
-Stream$Efecto_J_2250<- (3000- result.river.J2250.200.mean[303,7:521])
-Stream$Efecto_J_3500<- (3000- result.river.J3500.200.mean[303,7:521])
-Stream$Efecto_J_5000<- (3000- result.river.J5000.200.mean[303,7:521])
-#Extract community filter valu3 in each scenario is possible, we will also use it for the next figures
-Wetland$Efecto_F_2250<- (1- result.F2250.200.mean[304,7:1894])
-Wetland$Efecto_F_3500<- (1- result.F3500.200.mean[304,7:1894])
-Wetland$Efecto_F_5000<- (1- result.F5000.200.mean[304,7:1894])
-Stream$Efecto_F_2250<- (1- result.river.F2250.200.mean[304,7:521])
-Stream$Efecto_F_3500<- (1- result.river.F3500.200.mean[304,7:521])
-Stream$Efecto_F_5000<- (1- result.river.F5000.200.mean[304,7:521])
+Wetland$Efecto_J_2250<- 3000 - WWTP.impact.J2250
+Wetland$Efecto_J_3500<- 3000 - WWTP.impact.J3500
+Wetland$Efecto_J_5000<- 3000 - WWTP.impact.J5000
+Stream$Efecto_J_2250<- 3000 - River.impact.J2250
+Stream$Efecto_J_3500<- 3000 - River.impact.J3500
+Stream$Efecto_J_5000<- 3000 - River.impact.J5000
+#Extract community filter value in each scenario is possible, we will also use it for the next figures
+Wetland$Efecto_F_2250<- 1- WWTP.impact.F2250
+Wetland$Efecto_F_3500<- 1- WWTP.impact.F3500
+Wetland$Efecto_F_5000<- 1- WWTP.impact.F5000
+Stream$Efecto_F_2250<- 1- River.impact.F2250
+Stream$Efecto_F_3500<- 1- River.impact.F3500
+Stream$Efecto_F_5000<- 1- River.impact.F5000
 
 ######################################################################################
 ######################################################################################
