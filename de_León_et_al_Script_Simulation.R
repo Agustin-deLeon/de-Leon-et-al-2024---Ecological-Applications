@@ -139,7 +139,7 @@ impacto.2<- function(Meta.pool, m.pool, id.spp.impactadas,id.impacto.b,
                                                               prop.dead.by.it = prop.dead.by.it, id.obs = id.obs)
             as.matrix(b[[f]])-> result.1
             out.t<-cbind("Nrep"=f,"D50"=m,"efecto.filtro"=e,"efecto.J"=c,"J.max"=max(J.temp),"J.min"=min(J.temp),result.1) 
-            out.t<-rbind(out.t, apply(ifelse(out.t[,1:ncol(out.t)]<1,0,1),2,sum), apply((out.t[1:nrow(filter.env),]),2,sum),c(1:6, filter.env[max(id.spp.impactadas),]))
+            
             
           }  
     
@@ -158,7 +158,7 @@ impacto.2<- function(Meta.pool, m.pool, id.spp.impactadas,id.impacto.b,
                                                          prop.dead.by.it = prop.dead.by.it, id.obs = id.obs)
             
             out.t<-cbind("Nrep"=f,"D50"=m,"efecto.filtro"=e,"efecto.J"=c,"J.max"=max(J.temp),"J.min"=min(J.temp),b) 
-            out.t<-rbind(out.t, apply(ifelse(out.t[,1:ncol(out.t)]<1,0,1),2,sum), apply((out.t[1:nrow(filter.env),]),2,sum),c(1:6, filter.env[min(id.spp.impactadas),]))           
+            
             #res<-c(1:ncol(out.t))
             #J.loc=NULL
             #for(r in res){
@@ -297,6 +297,98 @@ WWTP.5000J <-impacto.2(Meta.pool=Meta.pool, m.pool=0.01, m.max=1,D50=m,
                        prop.dead.by.it = 0.05, id.obs =1:1890, dist.to.cont= dist.to.cont,
                        dispersion = dispersion, cont.Filtro = cont.Filtro, cont.J = cont.J, parallel.imp = T)
 
+################################################
+# Calculate vectors of filter and abudance 
+# effect for each community (Wetland landscape)
+################################################
+
+id.impacto.b<- c(2:1889)
+filter=NULL
+filter2=NULL
+filter.env<- Matriz_Filtro
+for (a in id.impacto.b){ 
+  filter.t<- as.matrix(((exp(-1)/2250)*min(dist.to.cont[,a]))) #change e to 2250, 3500 or 5000 for different propagation scenarios
+  filter<-rbind(filter,filter.t)}
+ifelse(filter>1, 1.0, filter) -> filter2
+as.matrix(filter2)-> filter2
+filter2<- rbind(1, filter2, 1)
+filter2<- (1 - filter2) * (0.8)  
+for(a in id.impacto.b){(filter.env[id.spp.impactadas,a]) - (filter2[a,])-> filter.env[id.spp.impactadas,a]} 
+ifelse(filter.env==1, 0.999999, filter.env)-> filter.env
+filter.env[min(id.spp.impactadas),]-> WWTP.impact.F2250
+
+id.impacto.b<- c(2:1889)
+filter=NULL
+filter2=NULL
+filter.env<- Matriz_Filtro
+for (a in id.impacto.b){ 
+  filter.t<- as.matrix(((exp(-1)/3500)*min(dist.to.cont[,a]))) #change e to 2250, 3500 or 5000 for different propagation scenarios
+  filter<-rbind(filter,filter.t)}
+ifelse(filter>1, 1.0, filter) -> filter2
+as.matrix(filter2)-> filter2
+filter2<- rbind(1, filter2, 1)
+filter2<- (1 - filter2) * (0.8)  
+for(a in id.impacto.b){(filter.env[id.spp.impactadas,a]) - (filter2[a,])-> filter.env[id.spp.impactadas,a]} 
+ifelse(filter.env==1, 0.999999, filter.env)-> filter.env
+filter.env[min(id.spp.impactadas),]-> WWTP.impact.F3500
+
+id.impacto.b<- c(2:1889)
+filter=NULL
+filter2=NULL
+filter.env<- Matriz_Filtro
+for (a in id.impacto.b){ 
+  filter.t<- as.matrix(((exp(-1)/5000)*min(dist.to.cont[,a]))) #change e to 2250, 3500 or 5000 for different propagation scenarios
+  filter<-rbind(filter,filter.t)}
+ifelse(filter>1, 1.0, filter) -> filter2
+as.matrix(filter2)-> filter2
+filter2<- rbind(1, filter2, 1)
+filter2<- (1 - filter2) * (0.8)  
+for(a in id.impacto.b){(filter.env[id.spp.impactadas,a]) - (filter2[a,])-> filter.env[id.spp.impactadas,a]} 
+ifelse(filter.env==1, 0.999999, filter.env)-> filter.env
+filter.env[min(id.spp.impactadas),]-> WWTP.impact.F5000
+
+
+J.temp=max(Js)
+J.imp=NULL
+for (a in id.impacto.b){
+  J.imp.t <- as.matrix(((exp(-1)/2250)*min(dist.to.cont[,a]))) 
+  J.imp<- rbind(J.imp,J.imp.t)}
+ifelse(J.imp>1, 1, J.imp) -> J.impactada
+(Js[1:(length(id.impacto.b)),] * J.impactada[1:(length(id.impacto.b)),]) -> J.temp.t 
+as.matrix(J.temp.t)-> J.temp.t
+J.temp<- rbind(J.temp,J.temp.t)
+J.temp<- rbind(J.temp, max(Js))
+round(J.temp,0)-> J.temp
+J.temp-> WWTP.impact.J2250
+
+
+J.temp=max(Js)
+J.imp=NULL
+for (a in id.impacto.b){
+  J.imp.t <- as.matrix(((exp(-1)/3500)*min(dist.to.cont[,a]))) 
+  J.imp<- rbind(J.imp,J.imp.t)}
+ifelse(J.imp>1, 1, J.imp) -> J.impactada
+(Js[1:(length(id.impacto.b)),] * J.impactada[1:(length(id.impacto.b)),]) -> J.temp.t 
+as.matrix(J.temp.t)-> J.temp.t
+J.temp<- rbind(J.temp,J.temp.t)
+J.temp<- rbind(J.temp, max(Js))
+round(J.temp,0)-> J.temp
+J.temp-> WWTP.impact.J3500
+
+J.temp=max(Js)
+J.imp=NULL
+for (a in id.impacto.b){
+  J.imp.t <- as.matrix(((exp(-1)/500)*min(dist.to.cont[,a]))) 
+  J.imp<- rbind(J.imp,J.imp.t)}
+ifelse(J.imp>1, 1, J.imp) -> J.impactada
+(Js[1:(length(id.impacto.b)),] * J.impactada[1:(length(id.impacto.b)),]) -> J.temp.t 
+as.matrix(J.temp.t)-> J.temp.t
+J.temp<- rbind(J.temp,J.temp.t)
+J.temp<- rbind(J.temp, max(Js))
+round(J.temp,0)-> J.temp
+J.temp-> WWTP.impact.J5000
+
+
 #############################################################################################
 #############################################################################################
 
@@ -375,7 +467,7 @@ impacto.2<- function(Meta.pool, m.pool, id.spp.impactadas,id.impacto.b,
                                                               prop.dead.by.it = prop.dead.by.it, id.obs = id.obs)
             as.matrix(b[[f]])-> result.1
             out.t<-cbind("Nrep"=f,"D50"=m,"efecto.filtro"=e,"efecto.J"=c,"J.max"=max(J.temp),"J.min"=min(J.temp),result.1) 
-            out.t<-rbind(out.t, apply(ifelse(out.t[,1:ncol(out.t)]<1,0,1),2,sum), apply((out.t[1:nrow(filter.env),]),2,sum),c(1:6, filter.env[min(id.spp.impactadas),]))
+            
             
           }  
           out<-rbind(out,out.t) 
@@ -393,7 +485,7 @@ impacto.2<- function(Meta.pool, m.pool, id.spp.impactadas,id.impacto.b,
                                                          prop.dead.by.it = prop.dead.by.it, id.obs = id.obs)
             
             out.t<-cbind("Nrep"=f,"D50"=m,"efecto.filtro"=e,"efecto.J"=c,"J.max"=max(J.temp),"J.min"=min(J.temp),b) 
-            out.t<-rbind(out.t, apply(ifelse(out.t[,1:ncol(out.t)]<1,0,1),2,sum), apply((out.t[1:nrow(filter.env),]),2,sum),c(1:6, filter.env[min(id.spp.impactadas),]))           
+                       
           }
           out<-rbind(out,out.t) 
         }
@@ -519,6 +611,104 @@ River.5000J <-impacto.2(Meta.pool=Meta.pool, m.pool=0.01, m.max=1,D50=m,
                         prop.dead.by.it = 0.05, id.obs =1:517, dist.to.cont= dist.to.cont,
                         dispersion = dispersion, cont.Filtro = cont.Filtro, cont.J = cont.J, parallel.imp = T)
 
+
+################################################
+# Calculate vectors of filter and abudance 
+# effect for each community (Stream landscape)
+################################################
+
+id.impacto.b<- c(2:516)
+filter=NULL
+filter2=NULL
+filter.env<- Matriz_river
+for (a in id.impacto.b){ 
+  filter.t<- as.matrix(((exp(-1)/2250)*min(dist.to.cont.river[,a]))) #change e to 2250, 3500 or 5000 for different propagation scenarios
+  filter<-rbind(filter,filter.t)}
+ifelse(filter>1, 1.0, filter) -> filter2
+as.matrix(filter2)-> filter2
+filter2<- rbind(1, filter2, 1)
+filter2<- (1 - filter2) * (0.8)  
+for(a in id.impacto.b){(filter.env[id.spp.impactadas,a]) - (filter2[a,])-> filter.env[id.spp.impactadas,a]} 
+ifelse(filter.env==1, 0.999999, filter.env)-> filter.env
+filter.env[min(id.spp.impactadas),]-> River.impact.F2250
+
+
+id.impacto.b<- c(2:516)
+filter=NULL
+filter2=NULL
+filter.env<- Matriz_river
+for (a in id.impacto.b){ 
+  filter.t<- as.matrix(((exp(-1)/3500)*min(dist.to.cont.river[,a]))) #change e to 2250, 3500 or 5000 for different propagation scenarios
+  filter<-rbind(filter,filter.t)}
+ifelse(filter>1, 1.0, filter) -> filter2
+as.matrix(filter2)-> filter2
+filter2<- rbind(1, filter2, 1)
+filter2<- (1 - filter2) * (0.8)  
+for(a in id.impacto.b){(filter.env[id.spp.impactadas,a]) - (filter2[a,])-> filter.env[id.spp.impactadas,a]} 
+ifelse(filter.env==1, 0.999999, filter.env)-> filter.env
+filter.env[min(id.spp.impactadas),]-> River.impact.F3500
+
+
+id.impacto.b<- c(2:516)
+filter=NULL
+filter2=NULL
+filter.env<- Matriz_river
+for (a in id.impacto.b){ 
+  filter.t<- as.matrix(((exp(-1)/5000)*min(dist.to.cont.river[,a]))) #change e to 2250, 3500 or 5000 for different propagation scenarios
+  filter<-rbind(filter,filter.t)}
+ifelse(filter>1, 1.0, filter) -> filter2
+as.matrix(filter2)-> filter2
+filter2<- rbind(1, filter2, 1)
+filter2<- (1 - filter2) * (0.8)  
+for(a in id.impacto.b){(filter.env[id.spp.impactadas,a]) - (filter2[a,])-> filter.env[id.spp.impactadas,a]} 
+ifelse(filter.env==1, 0.999999, filter.env)-> filter.env
+filter.env[min(id.spp.impactadas),]-> River.impact.F5000
+
+
+
+J.temp=max(Js)
+J.imp=NULL
+for (a in id.impacto.b){
+  J.imp.t <- as.matrix(((exp(-1)/2250)*min(dist.to.cont.river[,a]))) 
+  J.imp<- rbind(J.imp,J.imp.t)}
+ifelse(J.imp>1, 1, J.imp) -> J.impactada
+(Js[1:(length(id.impacto.b)),] * J.impactada[1:(length(id.impacto.b)),]) -> J.temp.t 
+as.matrix(J.temp.t)-> J.temp.t
+J.temp<- rbind(J.temp,J.temp.t)
+J.temp<- rbind(J.temp, max(Js))
+round(J.temp,0)-> J.temp
+J.temp-> River.impact.J2250
+
+J.temp=max(Js)
+J.imp=NULL
+for (a in id.impacto.b){
+  J.imp.t <- as.matrix(((exp(-1)/3500)*min(dist.to.cont.river[,a]))) 
+  J.imp<- rbind(J.imp,J.imp.t)}
+ifelse(J.imp>1, 1, J.imp) -> J.impactada
+(Js[1:(length(id.impacto.b)),] * J.impactada[1:(length(id.impacto.b)),]) -> J.temp.t 
+as.matrix(J.temp.t)-> J.temp.t
+J.temp<- rbind(J.temp,J.temp.t)
+J.temp<- rbind(J.temp, max(Js))
+round(J.temp,0)-> J.temp
+J.temp-> River.impact.J3500
+
+J.temp=max(Js)
+J.imp=NULL
+for (a in id.impacto.b){
+  J.imp.t <- as.matrix(((exp(-1)/5000)*min(dist.to.cont.river[,a]))) 
+  J.imp<- rbind(J.imp,J.imp.t)}
+ifelse(J.imp>1, 1, J.imp) -> J.impactada
+(Js[1:(length(id.impacto.b)),] * J.impactada[1:(length(id.impacto.b)),]) -> J.temp.t 
+as.matrix(J.temp.t)-> J.temp.t
+J.temp<- rbind(J.temp,J.temp.t)
+J.temp<- rbind(J.temp, max(Js))
+round(J.temp,0)-> J.temp
+J.temp-> River.impact.J5000
+
+
+
+#############################################################################################
+#############################################################################################
 #############################################################################################
 #############################################################################################
 
@@ -530,1241 +720,232 @@ River.5000J <-impacto.2(Meta.pool=Meta.pool, m.pool=0.01, m.max=1,D50=m,
 ################ NO POLLUTION SCENARIO ###########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in c(1:304)){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.10F[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.10F[1:304, 2:6], b.tot)) -> result.35.mean 
-rbind(round(result.35.mean[c(1:300),]), result.35.mean[c(301),], round(result.35.mean[c(302,303),]), result.35.mean[c(304),])-> result.35.mean 
+#D50 = 35, mean and variance richness
+apply(WWTP.10F[which(WWTP.10F[,2]==35),17:1906],2, mean)-> result.35.mean
+apply(WWTP.10F[which(WWTP.10F[,2]==35),17:1906],2, var)-> result.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.10F[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.10F[1:304, 2:6], b.tot)) -> result.85.mean
-rbind(round(result.85.mean[c(1:300),]), result.85.mean[c(301),], round(result.85.mean[c(302,303),]), result.85.mean[c(304),])-> result.85.mean 
+#D50 = 85, mean and variance richness
+apply(WWTP.10F[which(WWTP.10F[,2]==85),17:1906],2, mean)-> result.85.mean
+apply(WWTP.10F[which(WWTP.10F[,2]==85),17:1906],2, var)-> result.85.var
 
-#D50 = 200, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.10F[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.10F[1:304, 2:6], b.tot)) -> result.200.mean
-rbind(round(result.200.mean[c(1:300),]), result.200.mean[c(301),], round(result.200.mean[c(302,303),]), result.200.mean[c(304),])-> result.200.mean 
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.10F[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.10F[1:304, 2:6], b.tot)) -> result.35.var
-rbind(round(result.35.var[c(1:300),]), result.35.var[c(301),], round(result.35.var[c(302,303),]), result.35.var[c(304),])-> result.35.var 
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.10F[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.10F[1:304, 2:6], b.tot)) -> result.85.var
-rbind(round(result.85.var[c(1:300),]), result.85.var[c(301),], round(result.85.var[c(302,303),]), result.85.var[c(304),])-> result.85.var 
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.10F[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.10F[1:304, 2:6], b.tot)) -> result.200.var
-rbind(round(result.200.var[c(1:300),]), result.200.var[c(301),], round(result.200.var[c(302,303),]), result.200.var[c(304),])-> result.200.var 
-
+#D50 = 200, mean and variance richness
+apply(WWTP.10F[which(WWTP.10F[,2]==200),17:1906],2, mean)-> result.200.mean
+apply(WWTP.10F[which(WWTP.10F[,2]==200),17:1906],2, var)-> result.200.var
 
 ##################################################################
 ################ Filter effect, e50= 2250 ########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250F[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250F[1:304, 2:6], b.tot)) -> result.F2250.35.mean
-rbind(round(result.F2250.35.mean[c(1:300),]), result.F2250.35.mean[c(301),], round(result.F2250.35.mean[c(302,303),]), result.F2250.35.mean[c(304),])-> result.F2250.35.mean 
+#D50 = 35, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==35),17:1906],2, mean)-> result.F2250.35.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==35),17:1906],2, var)-> result.F2250.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250F[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250F[1:304, 2:6], b.tot)) -> result.F2250.85.mean
-rbind(round(result.F2250.85.mean[c(1:300),]), result.F2250.85.mean[c(301),], round(result.F2250.85.mean[c(302,303),]), result.F2250.85.mean[c(304),])-> result.F2250.85.mean 
+#D50 = 85, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==85),17:1906],2, mean)-> result.F2250.85.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==85),17:1906],2, var)-> result.F2250.85.var
 
-#D50 = 200, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250F[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250F[1:304, 2:6], b.tot)) -> result.F2250.200.mean
-rbind(round(result.F2250.200.mean[c(1:300),]), result.F2250.200.mean[c(301),], round(result.F2250.200.mean[c(302,303),]), result.F2250.200.mean[c(304),])-> result.F2250.200.mean
+#D50 = 200, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==200),17:1906],2, mean)-> result.F2250.200.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==200),17:1906],2, var)-> result.F2250.200.var
 
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250F[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250F[1:304, 2:6], b.tot)) -> result.F2250.35.var
-rbind(round(result.F2250.35.var[c(1:300),]), result.F2250.35.var[c(301),], round(result.F2250.35.var[c(302,303),]), result.F2250.35.var[c(304),])-> result.F2250.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250F[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250F[1:304, 2:6], b.tot)) -> result.F2250.85.var
-rbind(round(result.F2250.85.var[c(1:300),]), result.F2250.85.var[c(301),], round(result.F2250.85.var[c(302,303),]), result.F2250.85.var[c(304),])-> result.F2250.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250F[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250F[1:304, 2:6], b.tot)) -> result.F2250.200.var
-rbind(round(result.F2250.200.var[c(1:300),]), result.F2250.200.var[c(301),], round(result.F2250.200.var[c(302,303),]), result.F2250.200.var[c(304),])-> result.F2250.200.var
 
 ##################################################################
 ################ Filter effect, e50= 3500 ########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500F[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500F[1:304, 2:6], b.tot)) -> result.F3500.35.mean
-rbind(round(result.F3500.35.mean[c(1:300),]), result.F3500.35.mean[c(301),], round(result.F3500.35.mean[c(302,303),]), result.F3500.35.mean[c(304),])-> result.F3500.35.mean 
+#D50 = 35, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==35),17:1906],2, mean)-> result.F3500.35.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==35),17:1906],2, var)-> result.F3500.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500F[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500F[1:304, 2:6], b.tot)) -> result.F3500.85.mean
-rbind(round(result.F3500.85.mean[c(1:300),]), result.F3500.85.mean[c(301),], round(result.F3500.85.mean[c(302,303),]), result.F3500.85.mean[c(304),])-> result.F3500.85.mean 
+#D50 = 85, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==85),17:1906],2, mean)-> result.F3500.85.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==85),17:1906],2, var)-> result.F3500.85.var
 
-#D50 = 200, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500F[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500F[1:304, 2:6], b.tot)) -> result.F3500.200.mean
-rbind(round(result.F3500.200.mean[c(1:300),]), result.F3500.200.mean[c(301),], round(result.F3500.200.mean[c(302,303),]), result.F3500.200.mean[c(304),])-> result.F3500.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500F[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500F[1:304, 2:6], b.tot)) -> result.F3500.35.var
-rbind(round(result.F3500.35.var[c(1:300),]), result.F3500.35.var[c(301),], round(result.F3500.35.var[c(302,303),]), result.F3500.35.var[c(304),])-> result.F3500.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500F[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500F[1:304, 2:6], b.tot)) -> result.F3500.85.var
-rbind(round(result.F3500.85.var[c(1:300),]), result.F3500.85.var[c(301),], round(result.F3500.85.var[c(302,303),]), result.F3500.85.var[c(304),])-> result.F3500.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500F[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500F[1:304, 2:6], b.tot)) -> result.F3500.200.var
-rbind(round(result.F3500.200.var[c(1:300),]), result.F3500.200.var[c(301),], round(result.F3500.200.var[c(302,303),]), result.F3500.200.var[c(304),])-> result.F3500.200.var
+#D50 = 200, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==200),17:1906],2, mean)-> result.F3500.200.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==200),17:1906],2, var)-> result.F3500.200.var
 
 ##################################################################
 ################ Filter effect, e50= 5000 ########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000F[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000F[1:304, 2:6], b.tot)) -> result.F5000.35.mean
-rbind(round(result.F5000.35.mean[c(1:300),]), result.F5000.35.mean[c(301),], round(result.F5000.35.mean[c(302,303),]), result.F5000.35.mean[c(304),])-> result.F5000.35.mean 
+#D50 = 35, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==35),17:1906],2, mean)-> result.F5000.35.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==35),17:1906],2, var)-> result.F5000.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000F[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000F[1:304, 2:6], b.tot)) -> result.F5000.85.mean
-rbind(round(result.F5000.85.mean[c(1:300),]), result.F5000.85.mean[c(301),], round(result.F5000.85.mean[c(302,303),]), result.F5000.85.mean[c(304),])-> result.F5000.85.mean 
+#D50 = 85, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==85),17:1906],2, mean)-> result.F5000.85.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==85),17:1906],2, var)-> result.F5000.85.var
 
-#D50 = 200, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000F[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000F[1:304, 2:6], b.tot)) -> result.F5000.200.mean
-rbind(round(result.F5000.200.mean[c(1:300),]), result.F5000.200.mean[c(301),], round(result.F5000.200.mean[c(302,303),]), result.F5000.200.mean[c(304),])-> result.F5000.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000F[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000F[1:304, 2:6], b.tot)) -> result.F5000.35.var
-rbind(round(result.F5000.35.var[c(1:300),]), result.F5000.35.var[c(301),], round(result.F5000.35.var[c(302,303),]), result.F5000.35.var[c(304),])-> result.F5000.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000F[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000F[1:304, 2:6], b.tot)) -> result.F5000.85.var
-rbind(round(result.F5000.85.var[c(1:300),]), result.F5000.85.var[c(301),], round(result.F5000.85.var[c(302,303),]), result.F5000.85.var[c(304),])-> result.F5000.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000F[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000F[1:304, 2:6], b.tot)) -> result.F5000.200.var
-rbind(round(result.F5000.200.var[c(1:300),]), result.F5000.200.var[c(301),], round(result.F5000.200.var[c(302,303),]), result.F5000.200.var[c(304),])-> result.F5000.200.var
-
+#D50 = 200, mean and variance richness
+apply(WWTP.2250F[which(WWTP.2250F[,2]==200),17:1906],2, mean)-> result.F5000.200.mean
+apply(WWTP.2250F[which(WWTP.2250F[,2]==200),17:1906],2, var)-> result.F5000.200.var
 
 ##################################################################
 ################ Abundance effect, e50= 2250 ########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250J[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250J[1:304, 2:6], b.tot)) -> result.J2250.35.mean
-rbind(round(result.J2250.35.mean[c(1:300),]), result.J2250.35.mean[c(301),], round(result.J2250.35.mean[c(302,303),]), result.J2250.35.mean[c(304),])-> result.J2250.35.mean 
+#D50 = 35, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==35),17:1906],2, mean)-> result.J2250.35.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==35),17:1906],2, var)-> result.J2250.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250J[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250J[1:304, 2:6], b.tot)) -> result.J2250.85.mean
-rbind(round(result.J2250.85.mean[c(1:300),]), result.J2250.85.mean[c(301),], round(result.J2250.85.mean[c(302,303),]), result.J2250.85.mean[c(304),])-> result.J2250.85.mean 
+#D50 = 85, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==85),17:1906],2, mean)-> result.J2250.85.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==85),17:1906],2, var)-> result.J2250.85.var
 
-#D50 = 200, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250J[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250J[1:304, 2:6], b.tot)) -> result.J2250.200.mean
-rbind(round(result.J2250.200.mean[c(1:300),]), result.J2250.200.mean[c(301),], round(result.J2250.200.mean[c(302,303),]), result.J2250.200.mean[c(304),])-> result.J2250.200.mean
+#D50 = 200, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==200),17:1906],2, mean)-> result.J2250.200.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==200),17:1906],2, var)-> result.J2250.200.var
 
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250J[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250J[1:304, 2:6], b.tot)) -> result.J2250.35.var
-rbind(round(result.J2250.35.var[c(1:300),]), result.J2250.35.var[c(301),], round(result.J2250.35.var[c(302,303),]), result.J2250.35.var[c(304),])-> result.J2250.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250J[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250J[1:304, 2:6], b.tot)) -> result.J2250.85.var
-rbind(round(result.J2250.85.var[c(1:300),]), result.J2250.85.var[c(301),], round(result.J2250.85.var[c(302,303),]), result.J2250.85.var[c(304),])-> result.J2250.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.2250J[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.2250J[1:304, 2:6], b.tot)) -> result.J2250.200.var
-rbind(round(result.J2250.200.var[c(1:300),]), result.J2250.200.var[c(301),], round(result.J2250.200.var[c(302,303),]), result.J2250.200.var[c(304),])-> result.J2250.200.var
 
 ##################################################################
-############## Abundance effect, e50= 3500 #######################
+################ Abundance effect, e50= 3500 #####################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500J[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500J[1:304, 2:6], b.tot)) -> result.J3500.35.mean
-rbind(round(result.J3500.35.mean[c(1:300),]), result.J3500.35.mean[c(301),], round(result.J3500.35.mean[c(302,303),]), result.J3500.35.mean[c(304),])-> result.J3500.35.mean 
+#D50 = 35, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==35),17:1906],2, mean)-> result.J3500.35.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==35),17:1906],2, var)-> result.J3500.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500J[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500J[1:304, 2:6], b.tot)) -> result.J3500.85.mean
-rbind(round(result.J3500.85.mean[c(1:300),]), result.J3500.85.mean[c(301),], round(result.J3500.85.mean[c(302,303),]), result.J3500.85.mean[c(304),])-> result.J3500.85.mean 
+#D50 = 85, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==85),17:1906],2, mean)-> result.J3500.85.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==85),17:1906],2, var)-> result.J3500.85.var
 
-#D50 = 200, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500J[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500J[1:304, 2:6], b.tot)) -> result.J3500.200.mean
-rbind(round(result.J3500.200.mean[c(1:300),]), result.J3500.200.mean[c(301),], round(result.J3500.200.mean[c(302,303),]), result.J3500.200.mean[c(304),])-> result.J3500.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500J[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500J[1:304, 2:6], b.tot)) -> result.J3500.35.var
-rbind(round(result.J3500.35.var[c(1:300),]), result.J3500.35.var[c(301),], round(result.J3500.35.var[c(302,303),]), result.J3500.35.var[c(304),])-> result.J3500.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500J[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500J[1:304, 2:6], b.tot)) -> result.J3500.85.var
-rbind(round(result.J3500.85.var[c(1:300),]), result.J3500.85.var[c(301),], round(result.J3500.85.var[c(302,303),]), result.J3500.85.var[c(304),])-> result.J3500.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.3500J[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.3500J[1:304, 2:6], b.tot)) -> result.J3500.200.var
-rbind(round(result.J3500.200.var[c(1:300),]), result.J3500.200.var[c(301),], round(result.J3500.200.var[c(302,303),]), result.J3500.200.var[c(304),])-> result.J3500.200.var
+#D50 = 200, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==200),17:1906],2, mean)-> result.J3500.200.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==200),17:1906],2, var)-> result.J3500.200.var
 
 ##################################################################
-############## Abundance effect, e50= 5000 #######################
+################ Abundance effect, e50= 5000 #####################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000J[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000J[1:304, 2:6], b.tot)) -> result.J5000.35.mean
-rbind(round(result.J5000.35.mean[c(1:300),]), result.J5000.35.mean[c(301),], round(result.J5000.35.mean[c(302,303),]), result.J5000.35.mean[c(304),])-> result.J5000.35.mean 
+#D50 = 35, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==35),17:1906],2, mean)-> result.J5000.35.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==35),17:1906],2, var)-> result.J5000.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000J[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000J[1:304, 2:6], b.tot)) -> result.J5000.85.mean
-rbind(round(result.J5000.85.mean[c(1:300),]), result.J5000.85.mean[c(301),], round(result.J5000.85.mean[c(302,303),]), result.J5000.85.mean[c(304),])-> result.J5000.85.mean 
+#D50 = 85, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==85),17:1906],2, mean)-> result.J5000.85.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==85),17:1906],2, var)-> result.J5000.85.var
 
-#D50 = 200, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000J[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000J[1:304, 2:6], b.tot)) -> result.J5000.200.mean
-rbind(round(result.J5000.200.mean[c(1:300),]), result.J5000.200.mean[c(301),], round(result.J5000.200.mean[c(302,303),]), result.J5000.200.mean[c(304),])-> result.J5000.200.mean
+#D50 = 200, mean and variance richness
+apply(WWTP.2250J[which(WWTP.2250J[,2]==200),17:1906],2, mean)-> result.J5000.200.mean
+apply(WWTP.2250J[which(WWTP.2250J[,2]==200),17:1906],2, var)-> result.J5000.200.var
 
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000J[(((304*i)+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000J[1:304, 2:6], b.tot)) -> result.J5000.35.var
-rbind(round(result.J5000.35.var[c(1:300),]), result.J5000.35.var[c(301),], round(result.J5000.35.var[c(302,303),]), result.J5000.35.var[c(304),])-> result.J5000.35.var
 
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000J[(((6080+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000J[1:304, 2:6], b.tot)) -> result.J5000.85.var
-rbind(round(result.J5000.85.var[c(1:300),]), result.J5000.85.var[c(301),], round(result.J5000.85.var[c(302,303),]), result.J5000.85.var[c(304),])-> result.J5000.85.var
 
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    WWTP.5000J[(((12160+(304*i))+ii)),7:1896]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(WWTP.5000J[1:304, 2:6], b.tot)) -> result.J5000.200.var
-rbind(round(result.J5000.200.var[c(1:300),]), result.J5000.200.var[c(301),], round(result.J5000.200.var[c(302,303),]), result.J5000.200.var[c(304),])-> result.J5000.200.var
+
 
 #Stream landscape:
 ##################################################################
 ################ NO POLLUTION SCENARIO ###########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in c(1:304)){
-  a<- NULL
-  for(i in 0:19){
-    River.10F[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.10F[1:304, 2:6], b.tot)) -> result.river.35.mean 
-rbind(round(result.river.35.mean[c(1:300),]), result.river.35.mean[c(301),], round(result.river.35.mean[c(302,303),]), result.river.35.mean[c(304),])-> result.river.35.mean 
+#D50 = 35, mean and variance richness
+apply(River.10F[which(River.10F[,2]==35),17:533],2, mean)-> result.river.35.mean
+apply(River.10F[which(River.10F[,2]==35),17:533],2, var)-> result.river.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.10F[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.10F[1:304, 2:6], b.tot)) -> result.river.85.mean
-rbind(round(result.river.85.mean[c(1:300),]), result.river.85.mean[c(301),], round(result.river.85.mean[c(302,303),]), result.river.85.mean[c(304),])-> result.river.85.mean 
+#D50 = 85, mean and variance richness
+apply(River.10F[which(River.10F[,2]==85),17:533],2, mean)-> result.river.85.mean
+apply(River.10F[which(River.10F[,2]==85),17:533],2, var)-> result.river.85.var
 
-#D50 = 200, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.10F[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.10F[1:304, 2:6], b.tot)) -> result.river.200.mean
-rbind(round(result.river.200.mean[c(1:300),]), result.river.200.mean[c(301),], round(result.river.200.mean[c(302,303),]), result.river.200.mean[c(304),])-> result.river.200.mean 
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.10F[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.10F[1:304, 2:6], b.tot)) -> result.river.35.var
-rbind(round(result.river.35.var[c(1:300),]), result.river.35.var[c(301),], round(result.river.35.var[c(302,303),]), result.river.35.var[c(304),])-> result.river.35.var 
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.10F[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.10F[1:304, 2:6], b.tot)) -> result.river.85.var
-rbind(round(result.river.85.var[c(1:300),]), result.river.85.var[c(301),], round(result.river.85.var[c(302,303),]), result.river.85.var[c(304),])-> result.river.85.var 
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.10F[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.10F[1:304, 2:6], b.tot)) -> result.river.200.var
-rbind(round(result.river.200.var[c(1:300),]), result.river.200.var[c(301),], round(result.river.200.var[c(302,303),]), result.river.200.var[c(304),])-> result.river.200.var 
-
+#D50 = 200, mean and variance richness
+apply(River.10F[which(River.10F[,2]==200),17:533],2, mean)-> result.river.200.mean
+apply(River.10F[which(River.10F[,2]==200),17:533],2, var)-> result.river.200.var
 
 ##################################################################
 ################ Filter effect, e50= 2250 ########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250F[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250F[1:304, 2:6], b.tot)) -> result.river.F2250.35.mean
-rbind(round(result.river.F2250.35.mean[c(1:300),]), result.river.F2250.35.mean[c(301),], round(result.river.F2250.35.mean[c(302,303),]), result.river.F2250.35.mean[c(304),])-> result.river.F2250.35.mean 
+#D50 = 35, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==35),17:533],2, mean)-> result.river.F2250.35.mean
+apply(River.2250F[which(River.2250F[,2]==35),17:533],2, var)-> result.river.F2250.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250F[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250F[1:304, 2:6], b.tot)) -> result.river.F2250.85.mean
-rbind(round(result.river.F2250.85.mean[c(1:300),]), result.river.F2250.85.mean[c(301),], round(result.river.F2250.85.mean[c(302,303),]), result.river.F2250.85.mean[c(304),])-> result.river.F2250.85.mean 
+#D50 = 85, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==85),17:533],2, mean)-> result.river.F2250.85.mean
+apply(River.2250F[which(River.2250F[,2]==85),17:533],2, var)-> result.river.F2250.85.var
 
-#D50 = 200, mean richness
+#D50 = 200, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==200),17:533],2, mean)-> result.river.F2250.200.mean
+apply(River.2250F[which(River.2250F[,2]==200),17:533],2, var)-> result.river.F2250.200.var
 
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250F[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250F[1:304, 2:6], b.tot)) -> result.river.F2250.200.mean
-rbind(round(result.river.F2250.200.mean[c(1:300),]), result.river.F2250.200.mean[c(301),], round(result.river.F2250.200.mean[c(302,303),]), result.river.F2250.200.mean[c(304),])-> result.river.F2250.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250F[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250F[1:304, 2:6], b.tot)) -> result.river.F2250.35.var
-rbind(round(result.river.F2250.35.var[c(1:300),]), result.river.F2250.35.var[c(301),], round(result.river.F2250.35.var[c(302,303),]), result.river.F2250.35.var[c(304),])-> result.river.F2250.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250F[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250F[1:304, 2:6], b.tot)) -> result.river.F2250.85.var
-rbind(round(result.river.F2250.85.var[c(1:300),]), result.river.F2250.85.var[c(301),], round(result.river.F2250.85.var[c(302,303),]), result.river.F2250.85.var[c(304),])-> result.river.F2250.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250F[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250F[1:304, 2:6], b.tot)) -> result.river.F2250.200.var
-rbind(round(result.river.F2250.200.var[c(1:300),]), result.river.F2250.200.var[c(301),], round(result.river.F2250.200.var[c(302,303),]), result.river.F2250.200.var[c(304),])-> result.river.F2250.200.var
 
 ##################################################################
 ################ Filter effect, e50= 3500 ########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500F[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500F[1:304, 2:6], b.tot)) -> result.river.F3500.35.mean
-rbind(round(result.river.F3500.35.mean[c(1:300),]), result.river.F3500.35.mean[c(301),], round(result.river.F3500.35.mean[c(302,303),]), result.river.F3500.35.mean[c(304),])-> result.river.F3500.35.mean 
+#D50 = 35, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==35),17:533],2, mean)-> result.river.F3500.35.mean
+apply(River.2250F[which(River.2250F[,2]==35),17:533],2, var)-> result.river.F3500.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500F[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500F[1:304, 2:6], b.tot)) -> result.river.F3500.85.mean
-rbind(round(result.river.F3500.85.mean[c(1:300),]), result.river.F3500.85.mean[c(301),], round(result.river.F3500.85.mean[c(302,303),]), result.river.F3500.85.mean[c(304),])-> result.river.F3500.85.mean 
+#D50 = 85, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==85),17:533],2, mean)-> result.river.F3500.85.mean
+apply(River.2250F[which(River.2250F[,2]==85),17:533],2, var)-> result.river.F3500.85.var
 
-#D50 = 200, mean richness
-
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500F[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500F[1:304, 2:6], b.tot)) -> result.river.F3500.200.mean
-rbind(round(result.river.F3500.200.mean[c(1:300),]), result.river.F3500.200.mean[c(301),], round(result.river.F3500.200.mean[c(302,303),]), result.river.F3500.200.mean[c(304),])-> result.river.F3500.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500F[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500F[1:304, 2:6], b.tot)) -> result.river.F3500.35.var
-rbind(round(result.river.F3500.35.var[c(1:300),]), result.river.F3500.35.var[c(301),], round(result.river.F3500.35.var[c(302,303),]), result.river.F3500.35.var[c(304),])-> result.river.F3500.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500F[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500F[1:304, 2:6], b.tot)) -> result.river.F3500.85.var
-rbind(round(result.river.F3500.85.var[c(1:300),]), result.river.F3500.85.var[c(301),], round(result.river.F3500.85.var[c(302,303),]), result.river.F3500.85.var[c(304),])-> result.river.F3500.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500F[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500F[1:304, 2:6], b.tot)) -> result.river.F3500.200.var
-rbind(round(result.river.F3500.200.var[c(1:300),]), result.river.F3500.200.var[c(301),], round(result.river.F3500.200.var[c(302,303),]), result.river.F3500.200.var[c(304),])-> result.river.F3500.200.var
+#D50 = 200, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==200),17:533],2, mean)-> result.river.F3500.200.mean
+apply(River.2250F[which(River.2250F[,2]==200),17:533],2, var)-> result.river.F3500.200.var
 
 ##################################################################
 ################ Filter effect, e50= 5000 ########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000F[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000F[1:304, 2:6], b.tot)) -> result.river.F5000.35.mean
-rbind(round(result.river.F5000.35.mean[c(1:300),]), result.river.F5000.35.mean[c(301),], round(result.river.F5000.35.mean[c(302,303),]), result.river.F5000.35.mean[c(304),])-> result.river.F5000.35.mean 
+#D50 = 35, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==35),17:533],2, mean)-> result.river.F5000.35.mean
+apply(River.2250F[which(River.2250F[,2]==35),17:533],2, var)-> result.river.F5000.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000F[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000F[1:304, 2:6], b.tot)) -> result.river.F5000.85.mean
-rbind(round(result.river.F5000.85.mean[c(1:300),]), result.river.F5000.85.mean[c(301),], round(result.river.F5000.85.mean[c(302,303),]), result.river.F5000.85.mean[c(304),])-> result.river.F5000.85.mean 
+#D50 = 85, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==85),17:533],2, mean)-> result.river.F5000.85.mean
+apply(River.2250F[which(River.2250F[,2]==85),17:533],2, var)-> result.river.F5000.85.var
 
-#D50 = 200, mean richness
-
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000F[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000F[1:304, 2:6], b.tot)) -> result.river.F5000.200.mean
-rbind(round(result.river.F5000.200.mean[c(1:300),]), result.river.F5000.200.mean[c(301),], round(result.river.F5000.200.mean[c(302,303),]), result.river.F5000.200.mean[c(304),])-> result.river.F5000.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000F[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000F[1:304, 2:6], b.tot)) -> result.river.F5000.35.var
-rbind(round(result.river.F5000.35.var[c(1:300),]), result.river.F5000.35.var[c(301),], round(result.river.F5000.35.var[c(302,303),]), result.river.F5000.35.var[c(304),])-> result.river.F5000.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000F[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000F[1:304, 2:6], b.tot)) -> result.river.F5000.85.var
-rbind(round(result.river.F5000.85.var[c(1:300),]), result.river.F5000.85.var[c(301),], round(result.river.F5000.85.var[c(302,303),]), result.river.F5000.85.var[c(304),])-> result.river.F5000.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000F[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000F[1:304, 2:6], b.tot)) -> result.river.F5000.200.var
-rbind(round(result.river.F5000.200.var[c(1:300),]), result.river.F5000.200.var[c(301),], round(result.river.F5000.200.var[c(302,303),]), result.river.F5000.200.var[c(304),])-> result.river.F5000.200.var
+#D50 = 200, mean and variance richness
+apply(River.2250F[which(River.2250F[,2]==200),17:533],2, mean)-> result.river.F5000.200.mean
+apply(River.2250F[which(River.2250F[,2]==200),17:533],2, var)-> result.river.F5000.200.var
 
 ##################################################################
-############## Abundance effect, e50= 2250 #######################
+################ Abundance effect, e50= 2250 ########################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250J[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250J[1:304, 2:6], b.tot)) -> result.river.J2250.35.mean
-rbind(round(result.river.J2250.35.mean[c(1:300),]), result.river.J2250.35.mean[c(301),], round(result.river.J2250.35.mean[c(302,303),]), result.river.J2250.35.mean[c(304),])-> result.river.J2250.35.mean 
+#D50 = 35, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==35),17:533],2, mean)-> result.river.J2250.35.mean
+apply(River.2250J[which(River.2250J[,2]==35),17:533],2, var)-> result.river.J2250.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250J[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250J[1:304, 2:6], b.tot)) -> result.river.J2250.85.mean
-rbind(round(result.river.J2250.85.mean[c(1:300),]), result.river.J2250.85.mean[c(301),], round(result.river.J2250.85.mean[c(302,303),]), result.river.J2250.85.mean[c(304),])-> result.river.J2250.85.mean 
+#D50 = 85, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==85),17:533],2, mean)-> result.river.J2250.85.mean
+apply(River.2250J[which(River.2250J[,2]==85),17:533],2, var)-> result.river.J2250.85.var
 
-#D50 = 200, mean richness
+#D50 = 200, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==200),17:533],2, mean)-> result.river.J2250.200.mean
+apply(River.2250J[which(River.2250J[,2]==200),17:533],2, var)-> result.river.J2250.200.var
 
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250J[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250J[1:304, 2:6], b.tot)) -> result.river.J2250.200.mean
-rbind(round(result.river.J2250.200.mean[c(1:300),]), result.river.J2250.200.mean[c(301),], round(result.river.J2250.200.mean[c(302,303),]), result.river.J2250.200.mean[c(304),])-> result.river.J2250.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250J[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250J[1:304, 2:6], b.tot)) -> result.river.J2250.35.var
-rbind(round(result.river.J2250.35.var[c(1:300),]), result.river.J2250.35.var[c(301),], round(result.river.J2250.35.var[c(302,303),]), result.river.J2250.35.var[c(304),])-> result.river.J2250.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250J[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250J[1:304, 2:6], b.tot)) -> result.river.J2250.85.var
-rbind(round(result.river.J2250.85.var[c(1:300),]), result.river.J2250.85.var[c(301),], round(result.river.J2250.85.var[c(302,303),]), result.river.J2250.85.var[c(304),])-> result.river.J2250.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.2250J[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.2250J[1:304, 2:6], b.tot)) -> result.river.J2250.200.var
-rbind(round(result.river.J2250.200.var[c(1:300),]), result.river.J2250.200.var[c(301),], round(result.river.J2250.200.var[c(302,303),]), result.river.J2250.200.var[c(304),])-> result.river.J2250.200.var
 
 ##################################################################
-############## Abundance effect, e50= 3500 #######################
+################ Abundance effect, e50= 3500 #####################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500J[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500J[1:304, 2:6], b.tot)) -> result.river.J3500.35.mean
-rbind(round(result.river.J3500.35.mean[c(1:300),]), result.river.J3500.35.mean[c(301),], round(result.river.J3500.35.mean[c(302,303),]), result.river.J3500.35.mean[c(304),])-> result.river.J3500.35.mean 
+#D50 = 35, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==35),17:533],2, mean)-> result.river.J3500.35.mean
+apply(River.2250J[which(River.2250J[,2]==35),17:533],2, var)-> result.river.J3500.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500J[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500J[1:304, 2:6], b.tot)) -> result.river.J3500.85.mean
-rbind(round(result.river.J3500.85.mean[c(1:300),]), result.river.J3500.85.mean[c(301),], round(result.river.J3500.85.mean[c(302,303),]), result.river.J3500.85.mean[c(304),])-> result.river.J3500.85.mean 
+#D50 = 85, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==85),17:533],2, mean)-> result.river.J3500.85.mean
+apply(River.2250J[which(River.2250J[,2]==85),17:533],2, var)-> result.river.J3500.85.var
 
-#D50 = 200, mean richness
-
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500J[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500J[1:304, 2:6], b.tot)) -> result.river.J3500.200.mean
-rbind(round(result.river.J3500.200.mean[c(1:300),]), result.river.J3500.200.mean[c(301),], round(result.river.J3500.200.mean[c(302,303),]), result.river.J3500.200.mean[c(304),])-> result.river.J3500.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500J[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500J[1:304, 2:6], b.tot)) -> result.river.J3500.35.var
-rbind(round(result.river.J3500.35.var[c(1:300),]), result.river.J3500.35.var[c(301),], round(result.river.J3500.35.var[c(302,303),]), result.river.J3500.35.var[c(304),])-> result.river.J3500.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500J[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500J[1:304, 2:6], b.tot)) -> result.river.J3500.85.var
-rbind(round(result.river.J3500.85.var[c(1:300),]), result.river.J3500.85.var[c(301),], round(result.river.J3500.85.var[c(302,303),]), result.river.J3500.85.var[c(304),])-> result.river.J3500.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.3500J[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.3500J[1:304, 2:6], b.tot)) -> result.river.J3500.200.var
-rbind(round(result.river.J3500.200.var[c(1:300),]), result.river.J3500.200.var[c(301),], round(result.river.J3500.200.var[c(302,303),]), result.river.J3500.200.var[c(304),])-> result.river.J3500.200.var
+#D50 = 200, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==200),17:533],2, mean)-> result.river.J3500.200.mean
+apply(River.2250J[which(River.2250J[,2]==200),17:533],2, var)-> result.river.J3500.200.var
 
 ##################################################################
-############## Abundance effect, e50= 5000 #######################
+################ Abundance effect, e50= 5000 #####################
 ##################################################################
 
-#D50 = 35, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000J[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000J[1:304, 2:6], b.tot)) -> result.river.J5000.35.mean
-rbind(round(result.river.J5000.35.mean[c(1:300),]), result.river.J5000.35.mean[c(301),], round(result.river.J5000.35.mean[c(302,303),]), result.river.J5000.35.mean[c(304),])-> result.river.J5000.35.mean 
+#D50 = 35, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==35),17:533],2, mean)-> result.river.J5000.35.mean
+apply(River.2250J[which(River.2250J[,2]==35),17:533],2, var)-> result.river.J5000.35.var
 
-#D50 = 85, mean richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000J[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000J[1:304, 2:6], b.tot)) -> result.river.J5000.85.mean
-rbind(round(result.river.J5000.85.mean[c(1:300),]), result.river.J5000.85.mean[c(301),], round(result.river.J5000.85.mean[c(302,303),]), result.river.J5000.85.mean[c(304),])-> result.river.J5000.85.mean 
+#D50 = 85, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==85),17:533],2, mean)-> result.river.J5000.85.mean
+apply(River.2250J[which(River.2250J[,2]==85),17:533],2, var)-> result.river.J5000.85.var
 
-#D50 = 200, mean richness
-
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000J[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, mean)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000J[1:304, 2:6], b.tot)) -> result.river.J5000.200.mean
-rbind(round(result.river.J5000.200.mean[c(1:300),]), result.river.J5000.200.mean[c(301),], round(result.river.J5000.200.mean[c(302,303),]), result.river.J5000.200.mean[c(304),])-> result.river.J5000.200.mean
-
-#D50 = 35, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000J[(((304*i)+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000J[1:304, 2:6], b.tot)) -> result.river.J5000.35.var
-rbind(round(result.river.J5000.35.var[c(1:300),]), result.river.J5000.35.var[c(301),], round(result.river.J5000.35.var[c(302,303),]), result.river.J5000.35.var[c(304),])-> result.river.J5000.35.var
-
-#D50 = 85, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000J[(((6080+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000J[1:304, 2:6], b.tot)) -> result.river.J5000.85.var
-rbind(round(result.river.J5000.85.var[c(1:300),]), result.river.J5000.85.var[c(301),], round(result.river.J5000.85.var[c(302,303),]), result.river.J5000.85.var[c(304),])-> result.river.J5000.85.var
-
-#D50 = 200, var richness
-b.tot<-NULL
-for(ii in 1:304){
-  a<- NULL
-  for(i in 0:19){
-    River.5000J[(((12160+(304*i))+ii)),7:523]-> temp
-    rbind(a, temp)-> a
-  }
-  apply(a, 2, var)-> b
-  rbind(b.tot, b)-> b.tot
-}
-(cbind(River.5000J[1:304, 2:6], b.tot)) -> result.river.J5000.200.var
-rbind(round(result.river.J5000.200.var[c(1:300),]), result.river.J5000.200.var[c(301),], round(result.river.J5000.200.var[c(302,303),]), result.river.J5000.200.var[c(304),])-> result.river.J5000.200.var
+#D50 = 200, mean and variance richness
+apply(River.2250J[which(River.2250J[,2]==200),17:533],2, mean)-> result.river.J5000.200.mean
+apply(River.2250J[which(River.2250J[,2]==200),17:533],2, var)-> result.river.J5000.200.var
 
